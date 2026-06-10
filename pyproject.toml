@@ -1,0 +1,214 @@
+[build-system]
+requires = [
+    "setuptools>=78",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "attix"
+version = "0.1.0"
+description = "store filenames of a remote NAS device for searching"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Stephen R A King", email = "sking.github@gmail.com" },
+]
+maintainers = [
+    { name = "Stephen R A King", email = "sking.github@gmail.com" },
+]
+keywords = ["utility"]
+
+# https://pypi.org/pypi?%3Aaction=list_classifiers
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+	# for EOL versions see: https://devguide.python.org/versions/
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+dependencies = [
+    "pyyaml",
+]
+
+[project.urls]
+Homepage      = "https://github.com/Stephen-RA-King/attix"
+Download      = "https://github.com/Stephen-RA-King/attix/archive/refs/heads/main.zip"
+Documentation = "https://attix.readthedocs.io/en/latest/"
+CI            = "https://github.com/Stephen-RA-King/attix/actions"
+"Release Notes" = "https://github.com/Stephen-RA-King/attix/releases"
+"Source Code" = "https://github.com/Stephen-RA-King/attix/"
+"Bug Tracker" = "https://github.com/Stephen-RA-King/attix/issues"
+
+[project.scripts]
+attix = "attix.attix:main"
+
+[tool.setuptools]
+include-package-data = true
+
+
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"attix" = [
+]
+
+[tool.black]
+line-length = 88
+
+[tool.cruft]
+skip = [
+    "tests/",
+    "src/",
+    "*/header.png",
+    ".pypirc",
+    "CHANGELOG.md",
+]
+
+[tool.isort]
+profile = "black"
+line_length          = 88
+import_heading_stdlib      = "Core Library modules"
+import_heading_thirdparty  = "Third party modules"
+import_heading_firstparty  = "First party modules"
+import_heading_localfolder = "Local modules"
+known_third_party = [
+    "click",
+    "pytest",
+    "setuptools",
+    "pip-tools",
+    "pre-commit",
+]
+known_first_party    = ["pathmagic"]
+ensure_newline_before_comments = true
+combine_as_imports   = true
+
+
+[tool.mypy]
+ignore_missing_imports   = true
+check_untyped_defs       = true
+disallow_untyped_defs    = false
+warn_unused_ignores      = true
+strict_optional          = true
+warn_redundant_casts     = true
+warn_unused_configs      = true
+disallow_untyped_calls   = false
+disallow_incomplete_defs = true
+follow_imports           = "normal"
+cache_dir                = "cache/.mypy_cache"
+mypy_path                = "typeshed/pyi:typeshed/imports"
+exclude = [
+    '^tests/[\w]*.py$',
+    '^tools/[\w]*.py$',
+    '^docs/[\w]*.py$',
+    '^tasks.py$',
+]
+[tool.mypy.reports]
+html = "reports/mypy"
+
+[tool.semantic_release]
+version_toml = [
+    "pyproject.toml:project.version",
+]
+version_variables = [
+    "docs/conf.py:version",
+]
+build_command     = "python -m build"
+commit_message    = "chore: generate release with PSR"
+
+[tool.semantic_release.changelog]
+template_dir = ".psr_templates"
+file = "CHANGELOG.md"
+
+[tool.semantic_release.remote.token]
+env = "GH_TOKEN"
+
+[tool.flake8]
+# https://flake8.pycqa.org/en/latest/user/options.html
+# flake8 -                F401-F901
+# flake8-comprehensions - C400-C416
+# flake8-bugbear -        B001-B018, B901-B950
+# flake8-docstrings -     D100-D418 (flake8 plugin for pydocstyle)
+# pycodestyle -           E101-E902, W191-W606
+# pep8-naming -           N801-N818
+docstring-convention = "google"
+max-complexity       = 18
+max-line-length      = 88
+select               = ["B", "B9", "C", "D", "E", "F", "N", "W"]
+exclude = ["tests/*", ".tox/*", ".nox/*", "docs/*", ".git/*", ".github/*",]
+ignore = [
+    # pycodestyle - whitespace before ',', ';', or ':' - compatible with black
+    "E203",
+    # pycodestyle - line break before binary operator
+    "W503",
+]
+per-file-ignores = [
+    # flake8 - module imported but not used
+    "__init__.py:F401",
+    "pathmagic.py:F401",
+    "test_attix.py:F401",
+]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+    "docs/*",
+    "tests/*",
+    "tools/*",
+    "tasks.py",
+]
+
+[tool.coverage.report]
+fail_under    = 70
+show_missing = true
+precision = 2
+skip_empty = true
+omit = [
+    "docs/*",
+    "tests/*",
+    "tools/*",
+    "tasks.py",
+]
+exclude_lines = [
+    "pragma: no cover",
+
+    # Generally only debug code uses this
+    "def __repr__",
+
+    # If a debug setting is set, skip testing
+    "if self\\.debug:",
+    "if settings.DEBUG",
+
+    # Don't worry about safety checks and expected errors
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Do not complain about code that will never run
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "@abc.abstractmethod",
+]
+
+[tool.bandit]
+skips = [
+    "B101",  # Ignore defensive `assert`s (especially useful for mypy)
+    "B301",  # Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data
+    "B403",  # Consider possible security implications associated with pickle module
+    "B404",  # Ignore warnings about importing subprocess
+    "B603",  # Ignore warnings about calling subprocess.Popen without shell=True
+    "B607",  # Ignore warnings about calling subprocess.Popen without a full path to executable
+]
