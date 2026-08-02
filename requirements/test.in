@@ -1,5 +1,4 @@
--r production.txt
-
+-r base.in
 black
 flake8
 flake8-bandit
